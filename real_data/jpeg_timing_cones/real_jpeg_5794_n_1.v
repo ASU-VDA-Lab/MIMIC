@@ -1,0 +1,38 @@
+module real_jpeg_5794_n_1 (n_0, n_1);
+
+input n_0;
+
+output n_1;
+
+wire n_5;
+wire n_4;
+wire n_2;
+wire n_3;
+
+INVx6_ASAP7_75t_L g5 ( 
+.A(n_0),
+.Y(n_5)
+);
+
+INVxp67_ASAP7_75t_L g1 ( 
+.A(n_2),
+.Y(n_1)
+);
+
+HB1xp67_ASAP7_75t_L g2 ( 
+.A(n_3),
+.Y(n_2)
+);
+
+INVx6_ASAP7_75t_L g3 ( 
+.A(n_4),
+.Y(n_3)
+);
+
+BUFx3_ASAP7_75t_L g4 ( 
+.A(n_5),
+.Y(n_4)
+);
+
+
+endmodule
