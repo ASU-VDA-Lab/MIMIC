@@ -1,0 +1,27 @@
+module fake_netlist_1_7718_n_13 (n_1, n_2, n_0, n_13);
+input n_1;
+input n_2;
+input n_0;
+output n_13;
+wire n_11;
+wire n_12;
+wire n_6;
+wire n_4;
+wire n_3;
+wire n_9;
+wire n_5;
+wire n_7;
+wire n_10;
+wire n_8;
+AND2x2_ASAP7_75t_L g3 ( .A(n_0), .B(n_1), .Y(n_3) );
+INVx1_ASAP7_75t_L g4 ( .A(n_1), .Y(n_4) );
+BUFx2_ASAP7_75t_L g5 ( .A(n_3), .Y(n_5) );
+OAI22xp33_ASAP7_75t_L g6 ( .A1(n_4), .A2(n_0), .B1(n_1), .B2(n_2), .Y(n_6) );
+INVx1_ASAP7_75t_L g7 ( .A(n_5), .Y(n_7) );
+INVx1_ASAP7_75t_L g8 ( .A(n_5), .Y(n_8) );
+NAND2xp33_ASAP7_75t_L g9 ( .A(n_7), .B(n_3), .Y(n_9) );
+AOI222xp33_ASAP7_75t_L g10 ( .A1(n_9), .A2(n_7), .B1(n_8), .B2(n_6), .C1(n_3), .C2(n_4), .Y(n_10) );
+OAI211xp5_ASAP7_75t_SL g11 ( .A1(n_9), .A2(n_0), .B(n_1), .C(n_2), .Y(n_11) );
+CKINVDCx20_ASAP7_75t_R g12 ( .A(n_10), .Y(n_12) );
+AOI22xp33_ASAP7_75t_R g13 ( .A1(n_12), .A2(n_11), .B1(n_0), .B2(n_2), .Y(n_13) );
+endmodule
