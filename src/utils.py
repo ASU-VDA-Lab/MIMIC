@@ -25,6 +25,19 @@ def load_model_data():
     
     return binned_cache, bin_edges, reversed_mapping, feature_dict
 
+# Sampling function from the VAE
+def sample_vae(model, x_cond_tensor, n_samples=5):
+    model.eval()
+    samples = []
+    # Ensure conditioning tensor is on the device
+    x_cond_tensor = x_cond_tensor.to(device)
+    for _ in range(n_samples):
+        # Create a latent vector on the correct device
+        z = torch.randn((1, model.fc_mu.out_features), device=device)
+        y_gen = model.decode(z, x_cond_tensor)
+        samples.append(y_gen.detach().cpu().numpy()[0])
+    return np.array(samples)
+    
 # Node type sampling
 def sample_node_types_from_binned_cache(
     binned_cache, bin_edges, normalized_layer, n=1, reversed_mapping=None
