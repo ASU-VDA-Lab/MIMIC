@@ -18,9 +18,47 @@ from .utils import (
     compute_precomputed_transition_bias,
     get_constructed_graph
 )
+def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler):
+    vae = models['vae']
+    layer_size_pred_model = models['layer_size_pred_model']
+    
+    sample_x_orig = np.array([[clock_period, custom_num_nodes]], dtype=np.float32)
+    sample_x_norm = torch.tensor(X_scaler.transform(sample_x_orig), dtype=torch.float32)
 
+    generated_samples = sample_vae(vae, sample_x_norm, n_samples=5)
+    original_scale_samples = Y_scaler.inverse_transform(generated_samples)
+
+    all_seqs = []
+    for i in range(original_scale_samples.shape[0]):
+        scalar_tensor = torch.tensor([[custom_num_nodes]], device=device)
+        noise_tensor = torch.rand((1, 1), device=device)
+        sample_tensor = torch.tensor(original_scale_samples[i],
+                                     dtype=torch.float32,
+                                     device=device).unsqueeze(0)
+        inp = torch.cat((scalar_tensor, noise_tensor, sample_tensor), dim=1)
+
+        layer_size_pred_model.eval()
+        with torch.no_grad():
+            seq = torch.round(layer_size_pred_model(inp)) \
+                       .squeeze(0) \
+                       .cpu() \
+                       .to(torch.int)
+
+            le_one_mask = (seq <= 1)
+            if le_one_mask.any():
+                first_one_idx = le_one_mask.nonzero(as_tuple=True)[0][0].item()
+                seq[first_one_idx:] = 1
+            else:
+                seq[-1] = 1
+
+        all_seqs.append(seq)
+
+    return torch.stack(all_seqs).tolist()
+    
 def load_models(device, precomputed_bias=None):
     """Load all required models for graph generation."""
+    vae = VAE().to(device)
+    vae.load_state_dict(torch.load("./new_aes_models/aes_cvae_pred_model.pth", map_location=device)
     
     # Layer size prediction model
     layer_size_pred_model = DistributionGenerator(
@@ -80,6 +118,7 @@ def load_models(device, precomputed_bias=None):
     link_pred_model.eval()
     
     return {
+        'vae': vae,
         'layer_size_pred_model': layer_size_pred_model,
         'node_type_pred_model': node_type_pred_model,
         'edge_distribution_model': edge_distribution_model,
@@ -139,6 +178,12 @@ def main():
     print("Computing transition bias matrix...")
     with open("data/transition_bias/precomputed_transition_bias_aes.pkl", "rb") as f:
         precomputed_bias = pickle.load(f)
+
+    with open('./new_aes_models/X_scaler.pkl', 'rb') as f:
+        X_scaler = pickle.load(f)
+
+    with open('./new_aes_models/Y_scaler.pkl', 'rb') as f:
+        Y_scaler = pickle.load(f)
     
     # Load all models
     print("Loading models...")
@@ -154,18 +199,20 @@ def main():
     
     # Example usage - Generate a graph with specific parameters
     print("Generating grapriph...")
+    custom_num_nodes = 2000
     clock_period = 120  # Example clock period
-    layer_sizes = [10, 15, 10, 5, 4, 2, 1, 1, 1]  # Example layer sizes
+    layer_sizes = generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler)
+    constructed_graphs = []
+    for layers in layer_sizes:
+        constructed_graph = generate_graph(clock_period, layers, models, data_resources)
+        constructed_graphs.append(constructed_graph)
+        # Summary of the constructed graph
+        print("\nGraph Construction Summary:")
+        print(f"Number of nodes: {constructed_graph.num_nodes}")
+        print(f"Number of edges: {constructed_graph.num_edges}")
+        print(f"Layer sizes: {layers}")
     
-    constructed_graph = generate_graph(clock_period, layer_sizes, models, data_resources)
-    
-    # Print summary of the constructed graph
-    print("\nGraph Construction Summary:")
-    print(f"Number of nodes: {constructed_graph.num_nodes}")
-    print(f"Number of edges: {constructed_graph.num_edges}")
-    print(f"Layer sizes: {layer_sizes}")
-    
-    return constructed_graph
+    return constructed_graphs
 
 
 if __name__ == "__main__":
