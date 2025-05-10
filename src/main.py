@@ -14,6 +14,7 @@ from .bin_cache import precalculate_binned_cache
 
 # Import utility functions
 from .utils import (
+    sample_vae,
     load_model_data,
     compute_precomputed_transition_bias,
     get_constructed_graph
