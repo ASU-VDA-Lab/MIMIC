@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv
 import pickle
+import numpy as np
 
 # Import model classes
 from models.link_pred_model import DAGLinkPredictor
@@ -10,6 +11,7 @@ from models.fanout_pred_model import NodeFanoutPredictor
 from models.edge_distribution_model import BatchedDAGEdgePredictor
 from models.node_type_pred_model import DAGNodeDistributionGNN
 from models.layer_size_pred_model import DistributionGenerator
+from models.vae import VAE
 from .bin_cache import precalculate_binned_cache
 
 # Import utility functions
@@ -19,7 +21,7 @@ from .utils import (
     compute_precomputed_transition_bias,
     get_constructed_graph
 )
-def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler):
+def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler, device='cpu'):
     vae = models['vae']
     layer_size_pred_model = models['layer_size_pred_model']
     
@@ -59,7 +61,7 @@ def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler)
 def load_models(device, precomputed_bias=None):
     """Load all required models for graph generation."""
     vae = VAE().to(device)
-    vae.load_state_dict(torch.load("./new_aes_models/aes_cvae_pred_model.pth", map_location=device)
+    vae.load_state_dict(torch.load("./new_aes_models/aes_cvae_pred_model.pth", map_location=device))
     
     # Layer size prediction model
     layer_size_pred_model = DistributionGenerator(
