@@ -26,7 +26,7 @@ def load_model_data():
     return binned_cache, bin_edges, reversed_mapping, feature_dict
 
 # Sampling function from the VAE
-def sample_vae(model, x_cond_tensor, n_samples=5):
+def sample_vae(model, x_cond_tensor, n_samples=5, device='cpu'):
     model.eval()
     samples = []
     # Ensure conditioning tensor is on the device
