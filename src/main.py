@@ -1,9 +1,13 @@
+import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv
 import pickle
 import numpy as np
+import os
+from torch_geometric.data import Data
+import torch_geometric
 
 # Import model classes
 from models.link_pred_model import DAGLinkPredictor
@@ -167,8 +171,54 @@ def generate_graph(clock_period, layer_sizes, models, data_resources):
     
     return constructed_graph
 
+def save_graph(graph, output_dir, filename):
+    """
+    Save a PyTorch Geometric graph to a file.
+    
+    Args:
+        graph (Data): The PyTorch Geometric graph to save
+        output_dir (str): Directory to save the graph
+        filename (str): Filename for the saved graph
+    """
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Full path for the file
+    full_path = os.path.join(output_dir, filename)
+    
+    # Save the graph
+    torch.save(graph, full_path)
+    print(f"Saved graph to {full_path}")
+    
+    return full_path
+
 def main():
     """Main function to orchestrate the graph construction process."""
+    parser = argparse.ArgumentParser(description="Generate synthetic DAGs with learned models")
+    parser.add_argument(
+        "--num-nodes", "-n",
+        type=int,
+        default=2000,
+        help="Number of nodes to condition on (default: 2000)"
+    )
+    parser.add_argument(
+        "--clock-period", "-c",
+        type=int,
+        default=120,
+        help="Clock period to condition on (default: 120)"
+    )
+    parser.add_argument(
+        "--output-dir", "-o",
+        type=str,
+        default="generated_graphs",
+        help="Directory to save the generated graphs (default: 'generated_graphs')"
+    )
+    args = parser.parse_args()
+
+    custom_num_nodes = args.num_nodes
+    clock_period = args.clock_period
+    output_dir = args.output_dir
+
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -176,7 +226,7 @@ def main():
     # Load data resources
     print("Loading data resources...")
     binned_cache, bin_edges, reversed_mapping, feature_dict = load_model_data()
-    
+
     # Compute transition bias for link prediction
     print("Computing transition bias matrix...")
     with open("data/transition_bias/precomputed_transition_bias_aes.pkl", "rb") as f:
@@ -187,36 +237,52 @@ def main():
 
     with open('./new_aes_models/Y_scaler.pkl', 'rb') as f:
         Y_scaler = pickle.load(f)
-    
+
     # Load all models
     print("Loading models...")
     models = load_models(device, precomputed_bias)
-    
-    # Pack data resources
+
     data_resources = {
         'binned_cache': binned_cache,
         'bin_edges': bin_edges,
         'reversed_mapping': reversed_mapping,
         'feature_dict': feature_dict
     }
+
+    # Generate layer-size sequences
+    print(f"Generating layer sizes for {custom_num_nodes} nodes @ clock period {clock_period}...")
+    layer_sizes_list = generate_samples(
+        custom_num_nodes, clock_period, models, X_scaler, Y_scaler, device=device
+    )
+
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
     
-    # Example usage - Generate a graph with specific parameters
-    print("Generating grapriph...")
-    custom_num_nodes = 2000
-    clock_period = 120  # Example clock period
-    layer_sizes = generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler)
+    # Build, summarize, and save graphs
     constructed_graphs = []
-    for layers in layer_sizes:
+    for idx, layers in enumerate(layer_sizes_list, 1):
         constructed_graph = generate_graph(clock_period, layers, models, data_resources)
         constructed_graphs.append(constructed_graph)
-        # Summary of the constructed graph
-        print("\nGraph Construction Summary:")
-        print(f"Number of nodes: {constructed_graph.num_nodes}")
-        print(f"Number of edges: {constructed_graph.num_edges}")
-        print(f"Layer sizes: {layers}")
+        
+        # Print summary
+        print(f"\nGraph #{idx} Summary:")
+        print(f"  Number of nodes: {constructed_graph.num_nodes}")
+        print(f"  Number of edges: {constructed_graph.num_edges}")
+        print(f"  Layer sizes: {layers}")
+        
+        # Save the graph
+        filename = f"graph_n{custom_num_nodes}_c{clock_period}_sample{idx}.pt"
+        save_path = save_graph(constructed_graph, output_dir, filename)
+        
+        # Save layer sizes separately for reference
+        layer_sizes_file = f"layer_sizes_n{custom_num_nodes}_c{clock_period}_sample{idx}.pkl"
+        with open(os.path.join(output_dir, layer_sizes_file), 'wb') as f:
+            pickle.dump(layers, f)
+        print(f"  Saved layer sizes to {os.path.join(output_dir, layer_sizes_file)}")
+    
+    print(f"\nAll graphs have been saved to directory: {output_dir}")
     
     return constructed_graphs
-
 
 if __name__ == "__main__":
     main()
