@@ -21,8 +21,8 @@ pip install -r requirements.txt
    ```bash
    ```
 
-git clone [https://github.com/yourusername/your-repo.git](https://github.com/yourusername/your-repo.git)
-cd your-repo
+git clone https://github.com/ASU-VDA-Lab/MIMIC.git
+cd MIMIC
 
 ````
 
