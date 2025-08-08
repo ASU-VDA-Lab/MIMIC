@@ -387,7 +387,6 @@ class NewTimingGNN(nn.Module):
 ```python
 # In train.py, modify the evaluation function
 def calculate_custom_metrics(predictions, targets):
-    # Your custom metrics here
     return metrics_dict
 ```
 
