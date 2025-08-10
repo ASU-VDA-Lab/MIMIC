@@ -1,7 +1,6 @@
 # TimingGNN: Graph Neural Network for Timing Prediction
 
-A modular, production-ready implementation of a Graph Neural Network for timing prediction across different hardware accelerator datasets. This project compares the effectiveness of training on real vs. synthetic data across multiple hardware domains.
-
+A modular, production-ready implementation of a Graph Neural Network for timing prediction across different timing cone datasets.
 ## 🎯 Project Overview
 
 This project implements a comparative study using Graph Neural Networks to predict timing characteristics across different hardware accelerator domains (I2C, PCI, AC_TOP, JPEG, AES). The main research question is: **How do models trained on synthetic data compare to those trained on real data?**
