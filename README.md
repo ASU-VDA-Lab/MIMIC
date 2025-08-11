@@ -32,6 +32,8 @@ pip install -r requirements.txt
    pip install -r requirements.txt
    ```
 
+4. The dataset can be downloaded from [this link](https://www.dropbox.com/scl/fo/olr3qeve3r9u1ibs14o3w/ALvJrRpK2VUwxk_nWxgP_QI?rlkey=waig7qw55u93tab12d7p7aeq4&st=u26a2l9l&dl=0)
+
 ## Usage
 Run the generator via the `src.main` module. Available options:
 - `--num-nodes` (`-n`): Number of nodes to condition on (default: 2000).
