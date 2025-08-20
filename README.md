@@ -64,6 +64,7 @@ Graph #1 Summary:
 the cell type encoding in the final graphs are as follow:
 
 key: Integer encoded cell type
+
 values: a list with the index corresponding to the following:
 * index 0: number of inputs for the cell
 * index 1: number of outputs
