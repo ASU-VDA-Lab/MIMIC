@@ -61,7 +61,8 @@ Graph #1 Summary:
 
 ## Cell Type Encoding
 
-for the final graphs the encodings are as follow:
+the cell type encoding in the final graphs are as follow:
+```
 {0: [0, 0, 'input'],
  1: [1, 0, 'output'],
  2: [4, 1, 'A2O1A1Ixp33_ASAP7_75t_R'],
@@ -643,6 +644,7 @@ for the final graphs the encodings are as follow:
  605: [2, 1, 'XOR2x1_ASAP7_75t_SL'],
  606: [2, 1, 'XOR2x2_ASAP7_75t_SL'],
  607: [2, 1, 'XOR2xp5_ASAP7_75t_SL']}
+```
 
 ## License
 MIT License. See [LICENSE](LICENSE) for details.
