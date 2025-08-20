@@ -25,6 +25,7 @@ from .utils import (
     compute_precomputed_transition_bias,
     get_constructed_graph
 )
+
 def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler, device='cpu'):
     vae = models['vae']
     layer_size_pred_model = models['layer_size_pred_model']
@@ -65,7 +66,8 @@ def generate_samples(custom_num_nodes, clock_period, models, X_scaler, Y_scaler,
 def load_models(device, precomputed_bias=None):
     """Load all required models for graph generation."""
     vae = VAE().to(device)
-    vae.load_state_dict(torch.load("./models/aes_models/aes_cvae_pred_model.pth", map_location=device))
+    vae.load_state_dict(torch.load("./models/aes_models/aes_cvae_pred_model.pth", 
+                                   map_location=device, weights_only=False))
     
     # Layer size prediction model
     layer_size_pred_model = DistributionGenerator(
@@ -75,7 +77,8 @@ def load_models(device, precomputed_bias=None):
         num_layers=3
     ).to(device)
     layer_size_pred_model.load_state_dict(
-        torch.load('./models/aes_models/aes_lstm_pred_model.pth', map_location=device)
+        torch.load('./models/aes_models/aes_lstm_pred_model.pth', 
+                   map_location=device, weights_only=False)
     )
     layer_size_pred_model.eval()
 
@@ -86,7 +89,8 @@ def load_models(device, precomputed_bias=None):
         num_types=278
     ).to(device)
     node_type_pred_model.load_state_dict(
-        torch.load('./models/aes_models/aes_node_pred_model.pth', map_location=device)
+        torch.load('./models/aes_models/aes_node_pred_model.pth', 
+                   map_location=device, weights_only=False)
     )
     node_type_pred_model.eval()
 
@@ -97,7 +101,8 @@ def load_models(device, precomputed_bias=None):
         hidden_dim=512
     ).to(device)
     edge_distribution_model.load_state_dict(
-        torch.load('./models/aes_models/aes_edge_dist_model.pth', map_location=device)
+        torch.load('./models/aes_models/aes_edge_dist_model.pth', 
+                   map_location=device, weights_only=False)
     )
     edge_distribution_model.eval()
 
@@ -108,7 +113,8 @@ def load_models(device, precomputed_bias=None):
         hidden_dim=512
     ).to(device)
     fanout_pred_model.load_state_dict(
-        torch.load('./models/aes_models/aes_fanout_predictor.pth', map_location=device)
+        torch.load('./models/aes_models/aes_fanout_predictor.pth', 
+                   map_location=device, weights_only=False)
     )
     fanout_pred_model.eval()
 
@@ -120,7 +126,8 @@ def load_models(device, precomputed_bias=None):
         precomputed_transition_bias=precomputed_bias
     ).to(device)
     link_pred_model.load_state_dict(
-        torch.load('./models/aes_models/aes_link_pred_model.pth', map_location=device)
+        torch.load('./models/aes_models/aes_link_pred_model.pth', 
+                   map_location=device, weights_only=False)
     )
     link_pred_model.eval()
     

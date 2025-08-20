@@ -11,8 +11,13 @@ from models.fanout_pred_model import collate_fn_node_fanuout
 def load_model_data():
     """Load all required data files for the graph generation process."""
 
-    binned_cache = torch.load('data/bin_cache/aes_cache/binned_cache.pkl', map_location=torch.device('cpu'))
-    bin_edges = torch.load('data/bin_cache/aes_cache/bin_edges.pkl', map_location=torch.device('cpu'))
+    # Fix: Add weights_only=False for PyTorch 2.6+ compatibility
+    binned_cache = torch.load('data/bin_cache/aes_cache/binned_cache.pkl', 
+                             map_location=torch.device('cpu'), 
+                             weights_only=False)
+    bin_edges = torch.load('data/bin_cache/aes_cache/bin_edges.pkl', 
+                          map_location=torch.device('cpu'), 
+                          weights_only=False)
     
     with open("data/cell_encoding/aes_mapping.pkl", 'rb') as f:
         mapping = pickle.load(f)
@@ -590,7 +595,7 @@ def extract_highest_level_subgraph(graph):
     num_nodes = graph.x.size(0)
 
     # 1) Find the single node of highest level
-    #    (we assume graph.x[:,1] holds your “level” values)
+    #    (we assume graph.x[:,1] holds your "level" values)
     level_column = graph.x[:, 1]
     highest_node = torch.argmax(level_column).item()
 
