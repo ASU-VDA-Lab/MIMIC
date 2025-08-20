@@ -652,6 +652,8 @@ values: a list with the index corresponding to the following:
  606: [2, 1, 'XOR2x2_ASAP7_75t_SL'],
  607: [2, 1, 'XOR2xp5_ASAP7_75t_SL']}
 ```
+**NOTE**: if unable to download LFS tracked files then look for those files here: https://drive.google.com/drive/folders/1M6SCGg6rscsonyYY4RycqKh8921FBz1f?usp=sharing
+
 
 ## License
 MIT License. See [LICENSE](LICENSE) for details.
