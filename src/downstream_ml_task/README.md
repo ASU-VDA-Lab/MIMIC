@@ -66,6 +66,14 @@ Each experiment trains **two models**:
 - **Real Model**: Trained on combination of real datasets (5,000 samples each)
 - **Synthetic Model**: Trained on combination of synthetic datasets (5,000 samples each)
 
+## Dataset Structure
+
+Timing Cone Dataset Used for trianing is as follows:
+1. Column 0: Cell type integer encoded (in the Readme file corresponding to the cell type and index)
+2. Column 1: Level index starting from 0 to (max level -1)
+3. Column 2: Load Capacitance of the node
+
+
 ## Model Architecture
 
 ### TimingGNN Details
